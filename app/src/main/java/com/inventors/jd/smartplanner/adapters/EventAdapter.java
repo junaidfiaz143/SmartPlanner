@@ -180,7 +180,7 @@ public class EventAdapter extends RecyclerView.Adapter<EventAdapter.ViewHolder> 
                                             Toast.makeText(context, "Deleted", Toast.LENGTH_SHORT).show();
                                             eventList.remove(position);
                                             notifyDataSetChanged();
-                                            CalendarActivity.onSetEventPoints();
+                                            CalendarActivity.onSetEventPoints(context);
                                         }
                                     }
                                 })

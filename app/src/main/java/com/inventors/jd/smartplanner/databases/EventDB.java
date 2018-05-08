@@ -115,6 +115,7 @@ public class EventDB extends SQLiteOpenHelper {
         if (cursor.getCount() > 0) {
             cursor.moveToFirst();
             eventList = new ArrayList<>();
+//            Toast.makeText(context, "all: " + cursor.getCount(), Toast.LENGTH_SHORT).show();
             for (int i = 0; i < cursor.getCount(); i++) {
                 Event event = new Event();
                 event.setId(cursor.getInt(0));

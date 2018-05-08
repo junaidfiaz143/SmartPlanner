@@ -1,25 +1,21 @@
 package com.inventors.jd.smartplanner.activities;
 
-import android.app.NotificationManager;
-import android.app.PendingIntent;
-import android.content.Context;
-import android.content.Intent;
-import android.media.RingtoneManager;
-import android.net.Uri;
+import android.app.DatePickerDialog;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
-import android.support.v4.app.NotificationCompat;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.AppCompatSpinner;
 import android.support.v7.widget.CardView;
 import android.view.View;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
+import android.widget.DatePicker;
 import android.widget.TextView;
 
 import com.inventors.jd.smartplanner.R;
 
 import java.util.ArrayList;
+import java.util.Calendar;
 import java.util.List;
 
 /**
@@ -36,10 +32,74 @@ public class TryActivity extends AppCompatActivity {
 
     private CardView weekLayout;
 
+    private TextView txtFromDate, txtToDate;
+
+    private int day, month, year;
+
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.try_alarm_layout);
+
+        txtFromDate = findViewById(R.id.txtFromDate);
+        txtToDate = findViewById(R.id.txtToDate);
+
+        Calendar calendar = Calendar.getInstance();
+
+        day = calendar.get(Calendar.DAY_OF_MONTH);
+        month = calendar.get(Calendar.MONTH);
+        year = calendar.get(Calendar.YEAR);
+
+        txtFromDate.setText(String.format("%02d", day) + "-" + String.format("%02d", (month + 1)) + "-" + year);
+        txtToDate.setText(String.format("%02d", day) + "-" + String.format("%02d", (month + 1)) + "-" + year);
+
+        txtFromDate.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                DatePickerDialog.OnDateSetListener myDateListener = new DatePickerDialog.OnDateSetListener() {
+                    @Override
+                    public void onDateSet(DatePicker arg0, int arg1, int arg2, int arg3) {
+                        // TODO Auto-generated method stub
+                        year = arg1;
+                        month = arg2;
+                        day = arg3;
+
+//                        selectedCalendar.set(Calendar.YEAR, year);
+//                        selectedCalendar.set(Calendar.MONTH, mon);
+//                        selectedCalendar.set(Calendar.DATE, day);
+//                        showDate(arg1, arg2 + 1, arg3);
+                        txtFromDate.setText(String.format("%02d", day) + "-" + String.format("%02d", (month + 1)) + "-" + year);
+                    }
+                };
+
+                new DatePickerDialog(TryActivity.this, myDateListener, year, month, day).show();
+
+            }
+        });
+
+        txtToDate.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                DatePickerDialog.OnDateSetListener myDateListener = new DatePickerDialog.OnDateSetListener() {
+                    @Override
+                    public void onDateSet(DatePicker arg0, int arg1, int arg2, int arg3) {
+                        // TODO Auto-generated method stub
+                        year = arg1;
+                        month = arg2;
+                        day = arg3;
+
+//                        selectedCalendar.set(Calendar.YEAR, year);
+//                        selectedCalendar.set(Calendar.MONTH, mon);
+//                        selectedCalendar.set(Calendar.DATE, day);
+//                        showDate(arg1, arg2 + 1, arg3);
+                        txtToDate.setText(String.format("%02d", day) + "-" + String.format("%02d", (month + 1)) + "-" + year);
+                    }
+                };
+
+                new DatePickerDialog(TryActivity.this, myDateListener, year, month, day).show();
+
+            }
+        });
 
         weekLayout = findViewById(R.id.weekLayout);
 

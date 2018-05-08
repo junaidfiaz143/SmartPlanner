@@ -1,5 +1,6 @@
 package com.inventors.jd.smartplanner.activities;
 
+import android.content.Context;
 import android.content.Intent;
 import android.graphics.Color;
 import android.os.Bundle;
@@ -95,7 +96,7 @@ public class CalendarActivity extends AppCompatActivity {
 
         getMonthName(c.get(Calendar.MONTH));
 
-//        onSetEventPoints();
+        onSetEventPoints(this);
 
         // define a listener to receive callbacks when certain events happen.
         compactCalendarView.setListener(new CompactCalendarView.CompactCalendarViewListener() {
@@ -106,8 +107,8 @@ public class CalendarActivity extends AppCompatActivity {
 //                Toast.makeText(CalendarActivity.this, dateClicked + " - " + events.toString(), Toast.LENGTH_LONG).show();
                 Log.d(TAG, "Day was clicked: " + dateClicked + " with events " + events);
 
-                date = String.format("%02d", c.get(Calendar.DATE)) + "-" + String.format("%02d", (c.get(Calendar.MONTH) + 1)) + "-" + c.get(Calendar.YEAR);
-//                Toast.makeText(CalendarActivity.this, "" + date, Toast.LENGTH_LONG).show();
+                date = String.format("%02d", c.get(Calendar.DAY_OF_MONTH)) + "-" + String.format("%02d", (c.get(Calendar.MONTH) + 1)) + "-" + c.get(Calendar.YEAR);
+                Toast.makeText(CalendarActivity.this, "" + date, Toast.LENGTH_LONG).show();
 
                 try {
                     eventList = new ArrayList<>();
@@ -115,44 +116,45 @@ public class CalendarActivity extends AppCompatActivity {
 //                    adapter.notifyDataSetChanged();
 
                     ArrayList<com.inventors.jd.smartplanner.models.Event> list = new ArrayList<>();
-                    eventList = db.onGetDailyEvent(String.format("%02d", c.get(Calendar.DATE)), String.format("%02d", c.get(Calendar.MONTH) + 1), "" + c.get(Calendar.YEAR));
-
+                    eventList = db.onGetDailyEvent(String.format("%02d", c.get(Calendar.DAY_OF_MONTH)), String.format("%02d", c.get(Calendar.MONTH) + 1), "" + c.get(Calendar.YEAR));
                     for (com.inventors.jd.smartplanner.models.Event event : eventList) {
-                        for (String number : event.getWeek_days().split(",")) {
-                            switch (number) {
-                                case "1":
-                                    if (c.get(Calendar.DAY_OF_WEEK) == Calendar.SUNDAY)
-                                        list.add(event);
-                                    break;
-                                case "2":
-                                    if (c.get(Calendar.DAY_OF_WEEK) == Calendar.MONDAY)
-                                        list.add(event);
-                                    break;
-                                case "3":
-                                    if (c.get(Calendar.DAY_OF_WEEK) == Calendar.TUESDAY)
-                                        list.add(event);
-                                    break;
-                                case "4":
-                                    if (c.get(Calendar.DAY_OF_WEEK) == Calendar.WEDNESDAY)
-                                        list.add(event);
-                                    break;
-                                case "5":
-                                    if (c.get(Calendar.DAY_OF_WEEK) == Calendar.THURSDAY)
-                                        list.add(event);
-                                    break;
-                                case "6":
-                                    if (c.get(Calendar.DAY_OF_WEEK) == Calendar.FRIDAY)
-                                        list.add(event);
-                                    break;
-                                case "7":
-                                    if (c.get(Calendar.DAY_OF_WEEK) == Calendar.SATURDAY)
-                                        list.add(event);
-                                    break;
-                            }
+                        if ((Integer.parseInt(event.getFrom_month()) - 1) <= c.get(Calendar.MONTH) && (Integer.parseInt(event.getTo_month()) - 1) >= c.get(Calendar.MONTH))
+                            for (String number : event.getWeek_days().split(",")) {
+                                switch (number) {
+                                    case "1":
+                                        if (c.get(Calendar.DAY_OF_WEEK) == Calendar.SUNDAY)
+                                            list.add(event);
+                                        break;
+                                    case "2":
+                                        if (c.get(Calendar.DAY_OF_WEEK) == Calendar.MONDAY)
+                                            list.add(event);
+                                        break;
+                                    case "3":
+                                        if (c.get(Calendar.DAY_OF_WEEK) == Calendar.TUESDAY)
+                                            list.add(event);
+                                        break;
+                                    case "4":
+                                        if (c.get(Calendar.DAY_OF_WEEK) == Calendar.WEDNESDAY)
+                                            list.add(event);
+                                        break;
+                                    case "5":
+                                        if (c.get(Calendar.DAY_OF_WEEK) == Calendar.THURSDAY)
+                                            list.add(event);
+                                        break;
+                                    case "6":
+                                        if (c.get(Calendar.DAY_OF_WEEK) == Calendar.FRIDAY)
+                                            list.add(event);
+                                        break;
+                                    case "7":
+                                        if (c.get(Calendar.DAY_OF_WEEK) == Calendar.SATURDAY)
+                                            list.add(event);
+                                        break;
+                                }
 
-                        }
+                            }
                     }
                     if (list.size() > 0) {
+                        eventList = list;
                         adapter = new EventAdapter(CalendarActivity.this, list);
                         recyclerView.setAdapter(new EventAdapter(CalendarActivity.this, eventList));
                     }
@@ -169,24 +171,67 @@ public class CalendarActivity extends AppCompatActivity {
                 Log.d(TAG, "Month was scrolled to: " + firstDayOfNewMonth);
                 Calendar cal = Calendar.getInstance();
                 cal.setTime(firstDayOfNewMonth);
-//                Toast.makeText(CalendarActivity.this, "" + cal.get(Calendar.MONTH), Toast.LENGTH_SHORT).show();
+                c.set(Calendar.MONTH, cal.get(Calendar.MONTH));
+                onSetEventPoints(CalendarActivity.this);
+                Toast.makeText(CalendarActivity.this, "hahahha: " + cal.get(Calendar.MONTH), Toast.LENGTH_SHORT).show();
                 getMonthName(cal.get(Calendar.MONTH));
             }
         });
 
-        date = String.format("%02d", c.get(Calendar.DATE)) + "-" + String.format("%02d", (c.get(Calendar.MONTH) + 1)) + "-" + c.get(Calendar.YEAR);
+        date = String.format("%02d", c.get(Calendar.DAY_OF_MONTH) - 7) + "-" + String.format("%02d", (c.get(Calendar.MONTH) + 1)) + "-" + c.get(Calendar.YEAR);
 
+        Toast.makeText(this, "" + date, Toast.LENGTH_SHORT).show();
         try {
             eventList = new ArrayList<>();
-            eventList = db.onGetDailyEvent(String.format("%02d", c.get(Calendar.DATE)), String.format("%02d", c.get(Calendar.MONTH) + 1), "" + c.get(Calendar.YEAR));
-            recyclerView.removeAllViews();
+            recyclerView.removeAllViewsInLayout();
+//                    adapter.notifyDataSetChanged();
 
-            if (eventList.size() > 0) {
-                adapter = new EventAdapter(this, eventList);
-                recyclerView.setAdapter(adapter);
+            ArrayList<com.inventors.jd.smartplanner.models.Event> list = new ArrayList<>();
+            eventList = db.onGetDailyEvent("08", String.format("%02d", c.get(Calendar.MONTH) + 1), "" + c.get(Calendar.YEAR));
+            for (com.inventors.jd.smartplanner.models.Event event : eventList) {
+                if ((Integer.parseInt(event.getFrom_month()) - 1) <= c.get(Calendar.MONTH) && (Integer.parseInt(event.getTo_month()) - 1) >= c.get(Calendar.MONTH))
+                    for (String number : event.getWeek_days().split(",")) {
+                        Toast.makeText(this, "" + number, Toast.LENGTH_SHORT).show();
+                        switch (number) {
+                            case "1":
+                                if (c.get(Calendar.DAY_OF_WEEK) == Calendar.SUNDAY)
+                                    list.add(event);
+                                break;
+                            case "2":
+                                if (c.get(Calendar.DAY_OF_WEEK) == Calendar.MONDAY)
+                                    list.add(event);
+                                break;
+                            case "3":
+                                if (c.get(Calendar.DAY_OF_WEEK) == Calendar.TUESDAY)
+                                    list.add(event);
+                                break;
+                            case "4":
+                                if (c.get(Calendar.DAY_OF_WEEK) == Calendar.WEDNESDAY)
+                                    list.add(event);
+                                break;
+                            case "5":
+                                if (c.get(Calendar.DAY_OF_WEEK) == Calendar.THURSDAY)
+                                    list.add(event);
+                                break;
+                            case "6":
+                                if (c.get(Calendar.DAY_OF_WEEK) == Calendar.FRIDAY)
+                                    list.add(event);
+                                break;
+                            case "7":
+                                if (c.get(Calendar.DAY_OF_WEEK) == Calendar.SATURDAY)
+                                    list.add(event);
+                                break;
+                        }
+
+                    }
+            }
+            if (list.size() > 0) {
+                eventList = list;
+                adapter = new EventAdapter(CalendarActivity.this, list);
+                recyclerView.setAdapter(new EventAdapter(CalendarActivity.this, eventList));
             }
         } catch (Exception exp) {
-
+//                    Toast.makeText(CalendarActivity.this, "not found", Toast.LENGTH_SHORT).show();
         }
 
     }
@@ -306,28 +351,29 @@ public class CalendarActivity extends AppCompatActivity {
             recyclerView.removeAllViewsInLayout();
             eventList = new ArrayList<>();
 
-            eventList = db.onGetDailyEvent(String.format("%02d", c.get(Calendar.DATE)), String.format("%02d", c.get(Calendar.MONTH) + 1), "" + c.get(Calendar.YEAR));
+            eventList = db.onGetDailyEvent(String.format("%02d", c.get(Calendar.DAY_OF_MONTH)), String.format("%02d", c.get(Calendar.MONTH) + 1), "" + c.get(Calendar.YEAR));
             if (eventList != null)
                 if (eventList.size() > 0) {
                     adapter = new EventAdapter(this, eventList);
-                    recyclerView.setAdapter(adapter);
+//                    recyclerView.setAdapter(adapter);
                 }
         } catch (Exception exp) {
         }
 
         try {
-            onSetEventPoints();
+            onSetEventPoints(this);
         } catch (Exception exp) {
         }
     }
 
-    public static void onSetEventPoints() {
+    public static void onSetEventPoints(Context context) {
 //        String data = "28-04-2018";
 //        String[] items = data.split("-");
 //        for (String item : items) {
 //            Toast.makeText(this, "" + item, Toast.LENGTH_SHORT).show();
 //        }
 
+//        Toast.makeText(context, "points", Toast.LENGTH_SHORT).show();
         try {
 
             Calendar calendar = c;
@@ -335,7 +381,7 @@ public class CalendarActivity extends AppCompatActivity {
 
             compactCalendarView.removeAllEvents();
             for (int i = 1; i <= 31; i++) {
-                list = db.onGetDailyEvent(String.format("%02d", i), String.format("%02d", c.get(Calendar.MONTH) + 1), "" + c.get(Calendar.YEAR));
+                list = db.onGetDailyEvent(String.format("%02d", i), "" + (calendar.get(Calendar.MONTH) + 1), "" + c.get(Calendar.YEAR));
 
                 if (list != null)
                     for (com.inventors.jd.smartplanner.models.Event event : list) {
@@ -345,44 +391,52 @@ public class CalendarActivity extends AppCompatActivity {
                         int month = calendar.get(Calendar.MONTH) + 1;
                         int year = calendar.get(Calendar.YEAR);
 
-                        for (String number : event.getWeek_days().split(",")) {
-                            switch (number) {
-                                case "1":
-                                    if (calendar.get(Calendar.DAY_OF_WEEK) == Calendar.SUNDAY)
-                                        compactCalendarView.addEvent(new Event(Color.WHITE, timeInMillis(day, month, year), "Reminder Task New!"));
-                                    break;
-                                case "2":
-                                    if (calendar.get(Calendar.DAY_OF_WEEK) == Calendar.MONDAY)
-                                        compactCalendarView.addEvent(new Event(Color.WHITE, timeInMillis(day, month, year), "Reminder Task New!"));
-                                    break;
-                                case "3":
-                                    if (calendar.get(Calendar.DAY_OF_WEEK) == Calendar.TUESDAY)
-                                        compactCalendarView.addEvent(new Event(Color.WHITE, timeInMillis(day, month, year), "Reminder Task New!"));
-                                    break;
-                                case "4":
-                                    if (calendar.get(Calendar.DAY_OF_WEEK) == Calendar.WEDNESDAY)
-                                        compactCalendarView.addEvent(new Event(Color.WHITE, timeInMillis(day, month, year), "Reminder Task New!"));
-                                    break;
-                                case "5":
-                                    if (calendar.get(Calendar.DAY_OF_WEEK) == Calendar.THURSDAY)
-                                        compactCalendarView.addEvent(new Event(Color.WHITE, timeInMillis(day, month, year), "Reminder Task New!"));
-                                    break;
-                                case "6":
-                                    if (calendar.get(Calendar.DAY_OF_WEEK) == Calendar.FRIDAY)
-                                        compactCalendarView.addEvent(new Event(Color.WHITE, timeInMillis(day, month, year), "Reminder Task New!"));
-                                    break;
-                                case "7":
-                                    if (calendar.get(Calendar.DAY_OF_WEEK) == Calendar.SATURDAY)
-                                        compactCalendarView.addEvent(new Event(Color.WHITE, timeInMillis(day, month, year), "Reminder Task New!"));
-                                    break;
-                            }
+                        if (event.getType() != 0) {
+                            if ((Integer.parseInt(event.getFrom_month()) - 1) <= calendar.get(Calendar.MONTH) && (Integer.parseInt(event.getTo_month()) - 1) >= calendar.get(Calendar.MONTH))
+                                for (String number : event.getWeek_days().split(",")) {
+                                    switch (number) {
+                                        case "1":
+                                            if (calendar.get(Calendar.DAY_OF_WEEK) == Calendar.SUNDAY)
+                                                compactCalendarView.addEvent(new Event(Color.WHITE, timeInMillis(day, month, year), "Reminder Task New!"));
+                                            break;
+                                        case "2":
+                                            if (calendar.get(Calendar.DAY_OF_WEEK) == Calendar.MONDAY)
+                                                compactCalendarView.addEvent(new Event(Color.WHITE, timeInMillis(day, month, year), "Reminder Task New!"));
+                                            break;
+                                        case "3":
+                                            if (calendar.get(Calendar.DAY_OF_WEEK) == Calendar.TUESDAY)
+                                                compactCalendarView.addEvent(new Event(Color.WHITE, timeInMillis(day, month, year), "Reminder Task New!"));
+                                            break;
+                                        case "4":
+                                            if (calendar.get(Calendar.DAY_OF_WEEK) == Calendar.WEDNESDAY)
+                                                compactCalendarView.addEvent(new Event(Color.WHITE, timeInMillis(day, month, year), "Reminder Task New!"));
+                                            break;
+                                        case "5":
+                                            if (calendar.get(Calendar.DAY_OF_WEEK) == Calendar.THURSDAY)
+                                                compactCalendarView.addEvent(new Event(Color.WHITE, timeInMillis(day, month, year), "Reminder Task New!"));
+                                            break;
+                                        case "6":
+                                            if (calendar.get(Calendar.DAY_OF_WEEK) == Calendar.FRIDAY)
+                                                compactCalendarView.addEvent(new Event(Color.WHITE, timeInMillis(day, month, year), "Reminder Task New!"));
+                                            break;
+                                        case "7":
+                                            if (calendar.get(Calendar.DAY_OF_WEEK) == Calendar.SATURDAY)
+                                                compactCalendarView.addEvent(new Event(Color.WHITE, timeInMillis(day, month, year), "Reminder Task New!"));
+                                            break;
+                                    }
 
+                                }
+                        } else {
+                            compactCalendarView.addEvent(new Event(Color.WHITE, timeInMillis(day, month, year), "Reminder Task New!"));
+
+                            Toast.makeText(context, (Integer.parseInt(event.getFrom_month()) - 1) + " -from month- " + calendar.get(Calendar.MONTH), Toast.LENGTH_SHORT).show();
+                            Toast.makeText(context, (Integer.parseInt(event.getTo_month()) - 1) + " -to month- " + calendar.get(Calendar.MONTH), Toast.LENGTH_SHORT).show();
                         }
                     }
             }
 
         } catch (Exception exp) {
-//            Toast.makeText(this, "nb: " + exp.getMessage(), Toast.LENGTH_SHORT).show();
+            Toast.makeText(context, "nb: " + exp.getMessage(), Toast.LENGTH_SHORT).show();
         }
     }
 }

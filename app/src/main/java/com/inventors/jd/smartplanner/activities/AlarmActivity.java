@@ -222,7 +222,12 @@ public class AlarmActivity extends AppCompatActivity {
         edtDescription = findViewById(R.id.edtDescription);
 
         txtTime = findViewById(R.id.txtTime);
-        txtTime.setText(String.format("%02d", hour) + ":" + String.format("%02d", min));
+
+        if (hour % 12 == 0)
+            txtTime.setText("12" + ":" + String.format("%02d", min));
+        else
+            txtTime.setText(String.format("%02d", hour % 12) + ":" + String.format("%02d", min));
+
         txtTime.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
@@ -322,7 +327,7 @@ public class AlarmActivity extends AppCompatActivity {
                 Calendar calendar;
                 calendar = selectedCalendar;
                 calendar.add(Calendar.DAY_OF_MONTH, 7);
-                Toast.makeText(this, "" + calendar.get(Calendar.DAY_OF_MONTH), Toast.LENGTH_SHORT).show();
+                Toast.makeText(this, dates[1] + ": from - to :" + (calendar.get(Calendar.MONTH) + 1), Toast.LENGTH_SHORT).show();
                 event = new Event(title, description, time + " " + txtAM_PM.getText().toString(), dates[0], dates[1], dates[2], "" + calendar.get(Calendar.DAY_OF_MONTH), "" + (calendar.get(Calendar.MONTH) + 1), calendar.get(Calendar.YEAR) + "", location, image, week_days, type);
                 checkInsertion = db.onEventInsert(event);
             } else
